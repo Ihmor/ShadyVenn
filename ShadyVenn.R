@@ -8,7 +8,7 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 	
 	
 	#formate input
-	set_names <- names(input)
+	set_names <- gsub("[[:space:]]", " ", names(input))
 	input_lists <- list( "A" =	unlist_F(input[1]), "B" =	unlist_F(input[2]),"C" =	unlist_F(input[3]),"D" =	unlist_F(input[4]))
 	if (type == "default") { type <- paste0(length(input),"er") }
 	#if (substring(file_out,2,2) != ":") {wdir <- getwd()}
@@ -17,10 +17,10 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 	
 	# calculate overlap of the lists
 	sets <- data.frame(
-		"A"  =  length(input_lists$A),
-		"B"  =  length(input_lists$B),
-		"C"  =  length(input_lists$C),
-		"D"  =  length(input_lists$D),
+		"A"  =  length(setdiff(input_lists$A, union(union(input_lists$B,input_lists$C),input_lists$D))),
+		"B"  =  length(setdiff(input_lists$B, union(union(input_lists$A,input_lists$C),input_lists$D))),
+		"C"  =  length(setdiff(input_lists$C, union(union(input_lists$B,input_lists$A),input_lists$D))),
+		"D"  =  length(setdiff(input_lists$D, union(union(input_lists$B,input_lists$C),input_lists$A))),
 		"AB" =	length(intersect(input_lists$A, input_lists$B)),
 		"AC" =	length(intersect(input_lists$A, input_lists$C)),
 		"AD" =	length(intersect(input_lists$A, input_lists$D)),
@@ -28,13 +28,15 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 		"BD" =	length(intersect(input_lists$B, input_lists$D)),
 		"CD" =	length(intersect(input_lists$C, input_lists$D)),
 		"ABC" =	length(intersect(intersect(input_lists$A, input_lists$B), input_lists$C )),
+		"ABD" =	length(intersect(intersect(input_lists$A, input_lists$B), input_lists$D )),
 		"ACD" =	length(intersect(intersect(input_lists$A, input_lists$C), input_lists$D )),
 		"BCD" =	length(intersect(intersect(input_lists$B, input_lists$C), input_lists$D )),
+
 		"ABCD" =	length(intersect(intersect(input_lists$A, input_lists$B),intersect(input_lists$C, input_lists$D)))
 	)
 	sets <- rbind(sets, "ratio" = sets/max(sets))
 	row.names(sets) <- c("counts", "ratios")
-	
+	#print(sets)
 	
 	
 	#change base_svg to the values supplied in the input data
@@ -55,6 +57,19 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 	svg_text <- gsub("name_B<",     paste0(set_names[2],"<")  , svg_text)
 	svg_text <- gsub("name_C<",     paste0(set_names[3],"<")  , svg_text)
 	svg_text <- gsub("name_D<",     paste0(set_names[4],"<")  , svg_text)
+	
+	#change font of set names
+	maxFont <- 44
+	baseFont <- 12
+	nchars <- 2*sapply(set_names,nchar)
+	nchars[nchars>maxFont]  <- maxFont
+	fontSize_sets <- baseFont + (maxFont- nchars)
+	print(fontSize_sets)
+	
+	svg_text <- gsub("font-size:fontSize_Apx",     paste0("font-size:",fontSize_sets[1],"px")  , svg_text)
+	svg_text <- gsub("font-size:fontSize_Bpx",     paste0("font-size:",fontSize_sets[2],"px")  , svg_text)
+	svg_text <- gsub("font-size:fontSize_Cpx",     paste0("font-size:",fontSize_sets[3],"px")  , svg_text)
+	svg_text <- gsub("font-size:fontSize_Dpx",     paste0("font-size:",fontSize_sets[4],"px")  , svg_text)
 	
 	#change opacity of the fields
 	if 	(	length(regmatches(svg_text,regexpr("opacity:opacity_A;",svg_text)))) {
@@ -109,6 +124,7 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 		svg_text <- gsub("value_CD<",    paste0(sets[1,]$CD,"<") , svg_text)
 		svg_text <- gsub("value_ABC<",   paste0(sets[1,]$ABC,"<"), svg_text)
 		svg_text <- gsub("value_ACD<",   paste0(sets[1,]$ACD,"<"), svg_text)
+		svg_text <- gsub("value_ABD<",   paste0(sets[1,]$ABD,"<"), svg_text)
 		svg_text <- gsub("value_BCD<",   paste0(sets[1,]$BCD,"<"), svg_text)
 		svg_text <- gsub("value_ABCD<",   paste0(sets[1,]$ABCD,"<"), svg_text)
 	} else {
@@ -271,18 +287,18 @@ Venn4er_base <- function() {
 																	<g
 																		id=\"opacity_A\"
 																		inkscape:label=\"opacity_A\"
-																		style=\"stroke-width:1.0;fill:#ff0000;stroke:#000000;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:opacity_A\">
+																		style=\"stroke-width:1.0;fill:#ff0000;stroke:#000000;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1\">
 																		<g
 																			id=\"g4209\"
 																			style=\"stroke-width:1.0;fill:#ff0000;stroke:#000000;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none\">
 																			<path
-																				style=\"fill-opacity:1;stroke:#000000;stroke-width:1.0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill:#ff0000\"
+																				style=\"stroke:#000000;stroke-width:1.0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill:#ff0000;fill-opacity:opacity_A\"
          d=\"m 221.55847,364.98947 c -18.87757,-18.05266 -33.76641,-38.47888 -47.70834,-58.61944 -7.5758,-12.53892 -13.9855,-25.86637 -19.86722,-38.06251 -6.16643,-15.03675 -11.37293,-30.73264 -12.17076,-47.12467 -1.82491,-17.11624 5.55199,-42.14683 17.74328,-50.71907 13.43848,-7.66732 27.25482,-8.66965 40.64032,-8.17158 5.26303,1.28352 15.67172,-2.08299 14.72209,8.45283 0.096,24.89728 6.29802,43.94871 14.76563,64.79166 6.5654,14.34347 14.28028,27.86506 22.5,40 6.10105,5.69726 -1.50967,13.36466 -3.33334,19.16667 -3.64571,7.02781 -6.79799,15.34944 -9.16666,23.33333 -5.8811,16.5209 -6.31952,34.35666 -5.12135,51.66667 1.25434,4.07593 4.83442,14.12168 -1.15421,6.9611 -4.00172,-3.8385 -7.93464,-7.74812 -11.84944,-11.67499 z\"
 																				id=\"path3129-4\"
 																				inkscape:connector-curvature=\"0\"
 																				sodipodi:nodetypes=\"cssccscssccc\" />
 																				<path
-																					style=\"fill-opacity:1;stroke:#000000;stroke-width:1.0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill:#ff0000\"
+																					style=\"stroke:#000000;stroke-width:1.0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill:#ff0000;fill-opacity:opacity_A\"
          d=\"m 326.35014,436.61167 c -10.33682,-2.13858 -31.71806,-12.51889 -43.16106,-24.40296 3.51091,-0.69542 7.11939,0.72296 10.67367,0.4329 6.96518,-0.35148 16.4148,0.26896 23.35219,-0.41519 0.77567,3.54811 1.97058,7.6434 3.59188,11.37128 2.40458,4.34403 3.66286,8.71274 6.76873,12.12077 0.71045,1.27934 -0.34011,1.22888 -1.22541,0.8932 z\"
 																					id=\"path3923-1\"
 																					inkscape:connector-curvature=\"0\" />
@@ -315,7 +331,7 @@ Venn4er_base <- function() {
 																							sodipodi:nodetypes=\"ssccscs\" />
 																							<text
 																								xml:space=\"preserve\"
-																								style=\"font-size:26px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+																								style=\"font-size:fontSize_Apx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 																								x=\"78.284279\"
 																								y=\"186.64792\"
 																								id=\"name_A\"
@@ -326,7 +342,7 @@ Venn4er_base <- function() {
          y=\"308.96832\">name_A</tspan></text>
 																								<text
 																									xml:space=\"preserve\"
-																									style=\"font-size:26px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+																									style=\"font-size:fontSize_Bpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 																									x=\"209.09489\"
 																									y=\"135.8551\"
 																									id=\"name_B\"
@@ -337,7 +353,7 @@ Venn4er_base <- function() {
          y=\"101.1534\">name_B</tspan></text>
 																									<text
 																										xml:space=\"preserve\"
-																										style=\"font-size:26px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+																										style=\"font-size:fontSize_Cpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 																										x=\"442.80121\"
 																										y=\"128.98709\"
 																										id=\"name_C\"
@@ -348,7 +364,7 @@ Venn4er_base <- function() {
          y=\"101.32918\">name_C</tspan></text>
 																										<text
 																											xml:space=\"preserve\"
-																											style=\"font-size:26px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:2;fill-opacity:1;text-anchor:middle;text-align:center\"
+																											style=\"font-size:fontSize_Dpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:2;fill-opacity:1;text-anchor:middle;text-align:center\"
 																											x=\"573.98474\"
 																											y=\"164.42654\"
 																											id=\"name_D\"
@@ -387,7 +403,7 @@ Venn4er_base <- function() {
          id=\"tspan3013-77-2-6\"
          x=\"301.21384\"
          y=\"386.54022\"
-         style=\"font-size:18px\">value_AC</tspan></text>
+         style=\"font-size:18px\">value_ACD</tspan></text>
     <text
        xml:space=\"preserve\"
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
@@ -399,7 +415,7 @@ Venn4er_base <- function() {
          id=\"tspan3013-77-6-6\"
          x=\"244.54716\"
          y=\"364.34702\"
-         style=\"font-size:18px\">value_A</tspan></text>
+         style=\"font-size:18px\">value_AC</tspan></text>
     <text
        xml:space=\"preserve\"
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
@@ -441,13 +457,13 @@ Venn4er_base <- function() {
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
        x=\"333.60638\"
        y=\"216.01367\"
-       id=\"text3011-42-06-7\"
+       id=\"value_BC\"
        sodipodi:linespacing=\"125%\"><tspan
          sodipodi:role=\"line\"
          id=\"tspan3013-77-1-3\"
          x=\"333.60638\"
          y=\"216.01367\"
-         style=\"font-size:18px\">value_AC</tspan></text>
+         style=\"font-size:18px\">value_BC</tspan></text>
     <text
        xml:space=\"preserve\"
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
@@ -513,13 +529,13 @@ Venn4er_base <- function() {
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
        x=\"376.21381\"
        y=\"386.43036\"
-       id=\"text3011-42-7-1\"
+       id=\"value_ABD\"
        sodipodi:linespacing=\"125%\"><tspan
          sodipodi:role=\"line\"
          id=\"tspan3013-77-88-2\"
          x=\"376.21381\"
          y=\"386.43036\"
-         style=\"font-size:18px\">value_BD</tspan></text>
+         style=\"font-size:18px\">value_ABD</tspan></text>
     <text
        xml:space=\"preserve\"
        style=\"font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial\"
@@ -723,7 +739,7 @@ Venn3er_base <- function() {
 		y=\"495\">value_C</tspan></text>
 		<text
 		xml:space=\"preserve\"
-		style=\"font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+		style=\"font-size:fontSize_Apx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 		x=\"125.71429\"
 		y=\"110.93362\"
 		id=\"text4238\"
@@ -734,7 +750,7 @@ Venn3er_base <- function() {
 		y=\"100\">name_A</tspan></text>
 		<text
 		xml:space=\"preserve\"
-		style=\"font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+		style=\"font-size:fontSize_Bpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 		x=\"534.26483\"
 		y=\"99.535728\"
 		id=\"text4238-2\"
@@ -745,7 +761,7 @@ Venn3er_base <- function() {
 		y=\"100\">name_B</tspan></text>
 		<text
 		xml:space=\"preserve\"
-		style=\"font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+		style=\"font-size:fontSize_Cpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 		x=\"324.2648\"
 		y=\"603.82147\"
 		id=\"text4238-1\"
@@ -836,7 +852,7 @@ Venn2er_base <- function() {
 		inkscape:label=\"opacity_AB\" />
 		<text
 		xml:space=\"preserve\"
-		style=\"font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+		style=\"font-size:fontSize_Apx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 		x=\"81.762344\"
 		y=\"108.87971\"
 		id=\"name_A\"
@@ -845,10 +861,10 @@ Venn2er_base <- function() {
 		sodipodi:role=\"line\"
 		id=\"tspan3039\"
 		x=\"120\"
-		y=\"108\">Set_A</tspan></text>
+		y=\"108\">name_A</tspan></text>
 		<text
 		xml:space=\"preserve\"
-		style=\"font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
+		style=\"font-size:fontSize_Bpx;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
 		x=\"574.71674\"
 		y=\"108.87971\"
 		id=\"name_B\"
@@ -857,7 +873,7 @@ Venn2er_base <- function() {
 		sodipodi:role=\"line\"
 		id=\"tspan3043\"
 		x=\"600\"
-		y=\"108\">Set_B</tspan></text>
+		y=\"108\">name_B</tspan></text>
 		<text
 		xml:space=\"preserve\"
 		style=\"font-size:30px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial;text-anchor:middle;text-align:center\"
