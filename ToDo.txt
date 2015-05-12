@@ -1,4 +1,4 @@
 ToDo:
-	- test to make multiple colors; mixed areas also have mixed colors... Look into ggplots color scheme
-	- colors: create more suffisticated color schemes?
-	- send out email to facebook, ask martina, ask the guy from ggplot? 
+	- assure that accuracy with real data sets
+	- colors: create more sophisticated color schemes, where each set has a base color, and shared areas have shared colors; Look into ggplots color scheme
+	- adverstise: friends and family, stackoverflow, the guy from ggplot 
