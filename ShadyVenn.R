@@ -1,4 +1,4 @@
-ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_values = FALSE){
+ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_values = FALSE, fontSize = "default"){
 	
 	color_brewer <- list("neonyellow" = "#ccff00", "red" = "#ff0000", "purple" = "#6500ff", "blue" = "#000080", "lightblue" = "#007cd2", "grassy-green" = "#7cd200", "crimson" = "#ba1a1a", "lilac" = "#d5bee0", "babyblue" = "#aed5fc", "grey" = "#808080", "green" = "#008000", "teal" = "#00ac93","black" = "#000000", "brown" = "#561a05", "aquamarine" = "#7FFFD4", "azure" = "#007FFF", "greenyellow" = "#ADFF2F", "lemon" = "#FFF700", "mint" = "#98FF98", "neongreen" = "#39FF14", "orange" = "#FF6700", "yellow" = "#FFFF00")
 	#just for ShadyVenn.get_colors(); breaks afterwards.
@@ -59,17 +59,20 @@ ShadyVenn <-function(input, file_out, color = "red", type = "default", hide_valu
 	svg_text <- gsub("name_D<",     paste0(set_names[4],"<")  , svg_text)
 	
 	#change font of set names
-	maxFont <- 44
-	baseFont <- 12
-	nchars <- 2*sapply(set_names,nchar)
-	nchars[nchars>maxFont]  <- maxFont
-	fontSize_sets <- baseFont + (maxFont- nchars)
-	print(fontSize_sets)
+	if (fontSize == "default") {
+		maxFont <- 44
+		baseFont <- 12
+		nchars <- 2*sapply(set_names,nchar)
+		nchars[nchars>maxFont]  <- maxFont
+		fontSize <- min(baseFont + (maxFont- nchars))
+	}
+	print(fontSize)
 	
-	svg_text <- gsub("font-size:fontSize_Apx",     paste0("font-size:",fontSize_sets[1],"px")  , svg_text)
-	svg_text <- gsub("font-size:fontSize_Bpx",     paste0("font-size:",fontSize_sets[2],"px")  , svg_text)
-	svg_text <- gsub("font-size:fontSize_Cpx",     paste0("font-size:",fontSize_sets[3],"px")  , svg_text)
-	svg_text <- gsub("font-size:fontSize_Dpx",     paste0("font-size:",fontSize_sets[4],"px")  , svg_text)
+	svg_text <- gsub("font-size:fontSize_[ABCD]px",     paste0("font-size:",fontSize,"px")  , svg_text)
+	#svg_text <- gsub("font-size:fontSize_Apx",     paste0("font-size:",fontSize_sets[1],"px")  , svg_text)
+	#svg_text <- gsub("font-size:fontSize_Bpx",     paste0("font-size:",fontSize_sets[2],"px")  , svg_text)
+	#svg_text <- gsub("font-size:fontSize_Cpx",     paste0("font-size:",fontSize_sets[3],"px")  , svg_text)
+	#svg_text <- gsub("font-size:fontSize_Dpx",     paste0("font-size:",fontSize_sets[4],"px")  , svg_text)
 	
 	#change opacity of the fields
 	if 	(	length(regmatches(svg_text,regexpr("opacity:opacity_A;",svg_text)))) {
