@@ -1,4 +1,3 @@
 ToDo:
-	- assure that accuracy with real data sets
-	- colors: create more sophisticated color schemes, where each set has a base color, and shared areas have shared colors; Look into ggplots color scheme
-	- adverstise: friends and family, stackoverflow, the guy from ggplot 
+	- compile into a package
+	- adverstise: friends and family, stackoverflow, ggplot 
